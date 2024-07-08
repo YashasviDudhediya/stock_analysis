@@ -1,0 +1,56 @@
+import pandas as pd
+pip install pandas
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the RSI function
+def rsi(prices, window_length):
+    # Calculate the gains and losses
+    gains = prices.diff()
+    losses = -prices.diff()
+
+    # Calculate the average gains and losses
+    avg_gain = np.mean(gains[gains > 0])
+    avg_loss = np.mean(losses[losses > 0])
+
+    # Calculate the RS value
+    RS = avg_gain / avg_loss
+
+    # Calculate the RSI
+    RSI = 100 - (100 / (1 + RS))
+
+    return RSI
+
+# Load the data
+data = pd.read_csv('data.csv', index_col='Date')
+
+# Calculate the RSI
+rsi_values = rsi(data['Close'], 14)
+
+# Plot the RSI
+plt.plot(rsi_values)
+plt.show()
+
+# Implement the trading strategy
+buy_signals = np.where(rsi_values < 30, 1, 0)
+sell_signals = np.where(rsi_values > 70, -1, 0)
+
+# Calculate the total profit or loss
+total_profit = np.sum(buy_signals * data['Close'] - sell_signals * data['Close'])
+
+# Print the total profit or loss
+print('Total profit or loss: {}'.format(total_profit))
+
+# Plot the buy and sell signals
+plt.plot(buy_signals, label='Buy')
+plt.plot(sell_signals, label='Sell')
+plt.legend()
+plt.show()
+
+# Calculate the buy and sell percentage
+buy_percentage = np.sum(buy_signals) / len(buy_signals)
+sell_percentage = np.sum(sell_signals) / len(sell_signals)
+
+# Print the buy and sell percentage
+print('Buy percentage: {}'.format(buy_percentage))
+print('Sell percentage: {}'.format(sell_percentage))
